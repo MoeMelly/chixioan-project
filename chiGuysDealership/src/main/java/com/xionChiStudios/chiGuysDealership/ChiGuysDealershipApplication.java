@@ -3,8 +3,6 @@ package com.xionChiStudios.chiGuysDealership;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.logging.Logger;
 
 @SpringBootApplication
@@ -36,9 +34,7 @@ public class ChiGuysDealershipApplication {
 
 
 
-   public static void displayVehicles() {
-		VehicleDataManager.displayAllVehicles();
-   }
+
 
 }
 

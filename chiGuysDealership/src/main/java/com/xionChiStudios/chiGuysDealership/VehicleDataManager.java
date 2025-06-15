@@ -3,6 +3,7 @@ package com.xionChiStudios.chiGuysDealership;
 import org.apache.commons.dbcp2.BasicDataSource;
 
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -10,16 +11,13 @@ import java.util.logging.Logger;
 public class VehicleDataManager {
     private static final Logger logger = Logger.getLogger(VehicleDataManager.class.getName());
     private static final String URL = "jdbc:mysql://localhost:3306/dealership?user=root&password=yearup";
-    private static final BasicDataSource source = new BasicDataSource();
-
-    public static Connection connection() throws SQLException {
-        return DriverManager.getConnection(URL);
-    }
+    private static final BasicDataSource vehicleInventory = new BasicDataSource();
 
 
-    public static void displayAllVehicles() {
+    public static List<Vehicle> getAllVehicles(boolean displayList) {
+        List<Vehicle> allvehicles = new ArrayList<>();
         String sql = "SELECT * FROM vehicle";
-        try (Connection connection = VehicleDataManager.connection()) {
+        try (Connection connection = vehicleInventory.getConnection()) {
             Statement stmt = connection.createStatement();
             ResultSet resultSet = stmt.executeQuery(sql);
 
@@ -34,18 +32,20 @@ public class VehicleDataManager {
                 VehicleColor color = VehicleColor.valueOf(resultSet.getString("color").toUpperCase());
                 VehicleStatus status = VehicleStatus.valueOf(resultSet.getString("status").toUpperCase());
                 Vehicle newVehicle = new Vehicle(id, make, model, year,  vin, mileage, color, price, status);
-                System.out.println(newVehicle);
+                if (displayList) System.out.println(newVehicle);
+                allvehicles.add(newVehicle);
             }
 
         } catch (Exception e) {
             logger.log(Level.SEVERE, "ERROR DISPLAYING VEHICLE", e);
         }
+        return allvehicles;
     }
 
-    public void insertVehicle(Vehicle vehicle) {
+    public void insertVehicle (Vehicle vehicle) throws SQLException {
         String SQL = "INSERT INTO vehicle (id, make, model, year, vin, mileage, color, price, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?,)";
-        try (Connection connection = connection()) {
-            PreparedStatement statement = connection().prepareStatement(SQL);
+        try (Connection connection = vehicleInventory.getConnection()) {
+            PreparedStatement statement = connection.prepareStatement(SQL);
             statement.setInt(1, vehicle.id());
             statement.setString(2, vehicle.make());
             statement.setString(3, vehicle.model());
@@ -62,11 +62,11 @@ public class VehicleDataManager {
         }
     }
 
-    public void updateVehicle(Vehicle vehicle) {
+    public void updateVehicle (Vehicle vehicle) {
         String SQL = "UPDATE vehicle SET make = ?, model = ?, year = ?, vin = ?, mileage = ?, color = ?, price = ?, status = ? WHERE id = ?";
 
-        try (Connection conn = connection()) {
-            PreparedStatement statement = connection().prepareStatement(SQL);
+        try (Connection connection = vehicleInventory.getConnection()) {
+            PreparedStatement statement = connection.prepareStatement(SQL);
             statement.setInt(1, vehicle.id());
             statement.setString(2, vehicle.make());
             statement.setString(3, vehicle.model());
@@ -83,8 +83,6 @@ public class VehicleDataManager {
             } else {
                 logger.warning("⚠️ No vehicle found with ID " + vehicle.id());
             }
-
-
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "ERROR Updating QUERY");
         }
@@ -93,8 +91,8 @@ public class VehicleDataManager {
     public void deleteVehicle(int id) {
         String SQl = "DELETE FROM vehicle WHERE id = ?";
 
-        try (Connection connection = connection()) {
-            PreparedStatement statement = connection().prepareStatement(SQl);
+        try (Connection connection = vehicleInventory.getConnection()) {
+            PreparedStatement statement = connection.prepareStatement(SQl);
             statement.setInt(1, id);
             int rowsAffected = statement.executeUpdate();
             if (rowsAffected > 0) {
@@ -109,8 +107,8 @@ public class VehicleDataManager {
 
     public Vehicle getVehicleById (int id) {
         String sql = "SELECT * FROM vehicle WHERE id = ?";
-        try (Connection connection = connection()) {
-            PreparedStatement statement = connection().prepareStatement(sql);
+        try (Connection connection = vehicleInventory.getConnection()) {
+            PreparedStatement statement = connection.prepareStatement(sql);
 
             statement.setInt(1, id);
             ResultSet set = statement.executeQuery();
