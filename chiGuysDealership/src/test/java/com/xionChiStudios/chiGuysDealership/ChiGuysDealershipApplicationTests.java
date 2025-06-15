@@ -8,7 +8,7 @@ class ChiGuysDealershipApplicationTests {
 
 	@Test
 	void contextLoads() {
-		VehicleDataManager.displayAllVehicles();
+		VehicleDataManager.getAllVehicles();
 	}
 
 }

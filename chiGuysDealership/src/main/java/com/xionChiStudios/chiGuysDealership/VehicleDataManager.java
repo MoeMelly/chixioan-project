@@ -107,7 +107,7 @@ public class VehicleDataManager {
         }
     }
 
-    public void getVehicleById(int id) {
+    public Vehicle getVehicleById (int id) {
         String sql = "SELECT * FROM vehicle WHERE id = ?";
         try (Connection connection = connection()) {
             PreparedStatement statement = connection().prepareStatement(sql);
@@ -118,15 +118,22 @@ public class VehicleDataManager {
             if (set.next()) {
                 String make = set.getString("make");
                 String model = set.getString("model");
-                String color = set.getString("color");
+                int year = set.getInt("year");
+                String vin = set.getString("vin");
+                int mileage = set.getInt("mileage");
+                String colorStr = set.getString("color");
+                VehicleColor color = colorStr != null ? VehicleColor.valueOf(set.getString("color").toUpperCase()) : VehicleColor.UNKNOWN;
+                double price = set.getDouble("price");
+                VehicleStatus status = VehicleStatus.valueOf(set.getString("status").toUpperCase());
 
-                logger.info(Vehicle.class.toString());
+                return new Vehicle(id, make, model,year,vin,mileage,color,price,status);
             } else {
                 logger.warning("No Vehicle Found with ID: " + id);
             }
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error Finding Match For Vehicle with: " + id, e);
         }
+        return null;
     }
 }
 

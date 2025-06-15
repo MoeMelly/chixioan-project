@@ -16,11 +16,6 @@ public record Vehicle(int id, String make, String model, int year, String vin, i
         this.status = status;
     }
 
-    public static void main(String[] args) {
-        
-    }
-
-
     @Override
     public String toString() {
         String formatter = "%-10s|%-25s|%-25s|%-4s|%-17s|%-10s|%-11s|%-11s|%-11s";
